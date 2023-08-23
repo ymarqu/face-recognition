@@ -1,17 +1,20 @@
-import React, { Component } from "react";
+import React from "react";
 
-class Navagation extends Component{
+const Navagation = ({onRouteChange, isSignedIn}) => {
 
-    render(){
-
-
-        return(
-            <nav style={{display:'flex', justifyContent: 'flex-end'}}>
-                <p className="f3 link dim underline pa3 pointer">Sign Out</p>
-            </nav>
-        )
-    }
-
-
-}
+        if(isSignedIn){
+            return(
+                <nav style={{display:'flex', justifyContent: 'flex-end'}}>
+                <p onClick={() => {onRouteChange('signout')}} className="f3 link dim underline pa3 pointer">Sign Out</p>
+                </nav>
+                )
+        }else{
+            return(
+                <nav style={{display:'flex', justifyContent: 'flex-end'}}>
+                <p onClick={() => {onRouteChange('signin')}} className="f3 link dim underline pa3 pointer">Login</p>
+                <p onClick={() => {onRouteChange('register')}} className="f3 link dim underline pa3 pointer">Register</p>
+                </nav>
+            )
+        }
+            }
 export default Navagation;

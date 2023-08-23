@@ -6,6 +6,8 @@ import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import FaceRecongition from './Components/FaceRecongition/FaceRecongition';
 import Rank from './Components/Rank/Rank';
 import ParticlesBg from 'particles-bg';
+import SignIn from './Components/SignIn/SignIn';
+import Register from './Components/Register/Register';
 
 class App extends Component{
   constructor(){
@@ -13,7 +15,9 @@ class App extends Component{
     this.state = {
       input: '',
       borderBox: {},
-      display: 'none'
+      display: 'none',
+      route: 'signin',
+      isSignedIn: false
     }
   };
 
@@ -24,6 +28,15 @@ class App extends Component{
 
   onSubmit = () => {
     this.getImageRec(this.state.input);
+  }
+
+  onRouteChange = (route) => {
+    if(route === 'signout'){
+      this.setState({isSignedIn: false})
+    }else if(route === 'home'){
+      this.setState({isSignedIn: true})
+    }
+    this.setState({route: route})
   }
 
   getBoxCoordinates = (data) => {
@@ -46,11 +59,11 @@ class App extends Component{
 
 
 getImageRec = (imageURL) => {
-const PAT = '';
+const PAT = 'bcdc043094b24ecb8b3abce9e6733722';
 const USER_ID = 'clarifai';
 const APP_ID = 'main';
 const MODEL_ID = 'face-detection';
-const MODEL_VERSION_ID = '';
+const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
 const IMAGE_URL = imageURL;
 
 const raw = JSON.stringify({
@@ -93,11 +106,19 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
   return (
     <div className="App">
     <ParticlesBg type="cobweb" bg={true} />
-     <Navagation />
+     <Navagation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
      <Logo />
+     {this.state.route === 'home' ?
+     <div>
      <Rank />
      <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
-       <FaceRecongition url={this.state.input} boxLines={this.state.borderBox} boxDisplay={this.state.display}/>
+     <FaceRecongition url={this.state.input} boxLines={this.state.borderBox} boxDisplay={this.state.display}/>
+    </div>
+    :
+    this.state.route === 'signin' ?
+    <SignIn onRouteChange={this.onRouteChange}/> :
+    <Register onRouteChange={this.onRouteChange}/>
+     }
     </div>
    );
   }
