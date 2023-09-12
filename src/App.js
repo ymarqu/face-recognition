@@ -17,9 +17,26 @@ class App extends Component{
       borderBox: {},
       display: 'none',
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     }
   };
+
+loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }})
+  }
 
   onInputChange = (e) => {
     this.setState({display: 'none'})
@@ -92,11 +109,33 @@ const requestOptions = {
 };
 
 fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
-    .then(response => response.json())
-    .then(result => {
-      this.getBoxCoordinates(result.outputs[0].data.regions[0].region_info.bounding_box)
+    .then(response => {
+        if(response){
+          console.log(response.json())
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type' : 'application/json'},
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
+          .then(res => res.json())
+          .then(count => {
+            console.log('count' + JSON.stringify(count))
+            this.setState(Object.assign(this.state.user, {entries: count}))
+          })
+        }
+    console.log('response' + JSON.stringify(response))
+        // .then(result => {
+      this.getBoxCoordinates(response.outputs[0].data.regions[0].region_info.bounding_box)
+    // })
     })
     .catch(error => console.log('error', error));
+}
+
+componentDidMount(){
+  fetch('http://localhost:3000')
+  .then(res => res.json())
 }
 
   render(){
@@ -110,14 +149,14 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
      <Logo />
      {this.state.route === 'home' ?
      <div>
-     <Rank />
+     <Rank name={this.state.user.name} rank={this.state.user.entries} />
      <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
      <FaceRecongition url={this.state.input} boxLines={this.state.borderBox} boxDisplay={this.state.display}/>
     </div>
     :
     this.state.route === 'signin' ?
-    <SignIn onRouteChange={this.onRouteChange}/> :
-    <Register onRouteChange={this.onRouteChange}/>
+    <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/> :
+    <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
      }
     </div>
    );
