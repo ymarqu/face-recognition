@@ -109,9 +109,9 @@ const requestOptions = {
 };
 
 fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
-    .then(response => {
-        if(response){
-          console.log(response.json())
+.then(response => response.json())
+.then(result => {
+        if(result){
           fetch('http://localhost:3000/image', {
             method: 'put',
             headers: {'Content-Type' : 'application/json'},
@@ -125,9 +125,9 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
             this.setState(Object.assign(this.state.user, {entries: count}))
           })
         }
-    console.log('response' + JSON.stringify(response))
+    console.log('response' + result)
         // .then(result => {
-      this.getBoxCoordinates(response.outputs[0].data.regions[0].region_info.bounding_box)
+      this.getBoxCoordinates(result.outputs[0].data.regions[0].region_info.bounding_box)
     // })
     })
     .catch(error => console.log('error', error));
