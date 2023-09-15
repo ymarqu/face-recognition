@@ -8,6 +8,7 @@ import Rank from './Components/Rank/Rank';
 import ParticlesBg from 'particles-bg';
 import SignIn from './Components/SignIn/SignIn';
 import Register from './Components/Register/Register';
+import WebcamCapture from './Components/Camera/camera';
 
 class App extends Component{
   constructor(){
@@ -121,14 +122,10 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
           })
           .then(res => res.json())
           .then(count => {
-            console.log('count' + JSON.stringify(count))
             this.setState(Object.assign(this.state.user, {entries: count}))
           })
         }
-    console.log('response' + result)
-        // .then(result => {
       this.getBoxCoordinates(result.outputs[0].data.regions[0].region_info.bounding_box)
-    // })
     })
     .catch(error => console.log('error', error));
 }
@@ -150,6 +147,7 @@ componentDidMount(){
      {this.state.route === 'home' ?
      <div>
      <Rank name={this.state.user.name} rank={this.state.user.entries} />
+     <WebcamCapture />
      <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
      <FaceRecongition url={this.state.input} boxLines={this.state.borderBox} boxDisplay={this.state.display}/>
     </div>
