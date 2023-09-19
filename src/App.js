@@ -8,7 +8,7 @@ import Rank from './Components/Rank/Rank';
 import ParticlesBg from 'particles-bg';
 import SignIn from './Components/SignIn/SignIn';
 import Register from './Components/Register/Register';
-import WebcamCapture from './Components/Camera/camera';
+import Camera from './Components/Camera/camera';
 
 class App extends Component{
   constructor(){
@@ -25,10 +25,16 @@ class App extends Component{
         email: '',
         entries: 0,
         joined: ''
-      }
+      },
+      imageUrl: "",
+      webcamRef: React.createRef(),
+      imgSrc: null
     }
   };
-
+   base64ToBytes(base64) {
+    const binString = atob(base64);
+    return Uint8Array.from(binString, (m) => m.codePointAt(0));
+  }
 loadUser = (data) => {
     this.setState({user: {
       id: data.id,
@@ -38,14 +44,29 @@ loadUser = (data) => {
       joined: data.joined
     }})
   }
+ capture =  (e) => {
+    const imageSrc = this.state.webcamRef.current.getScreenshot();
+    console.log(imageSrc)
+    // let hope = this.base64ToBytes(imageSrc);
+    // console.log(hope)
+    // console.log(atob(imageSrc))
+    console.log(e);
+    // const imageSrc = 'https://www.ripponmedicalservices.co.uk/images/easyblog_articles/89/b2ap3_large_ee72093c-3c01-433a-8d25-701cca06c975.jpg'
 
+    this.setState({imgSrc: imageSrc})
+  };
+
+
+  setImageUrl = (e) => {
+    this.setState.imageURL = e.target.value
+  }
   onInputChange = (e) => {
     this.setState({display: 'none'})
     this.setState({input: e.target.value})
   }
 
   onSubmit = () => {
-    this.getImageRec(this.state.input);
+    this.getImageRec(this.state.imgSrc);
   }
 
   onRouteChange = (route) => {
@@ -125,7 +146,8 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
             this.setState(Object.assign(this.state.user, {entries: count}))
           })
         }
-      this.getBoxCoordinates(result.outputs[0].data.regions[0].region_info.bounding_box)
+        console.log(result)
+      // this.getBoxCoordinates(result.outputs[0].data.regions[0].region_info.bounding_box)
     })
     .catch(error => console.log('error', error));
 }
@@ -147,7 +169,7 @@ componentDidMount(){
      {this.state.route === 'home' ?
      <div>
      <Rank name={this.state.user.name} rank={this.state.user.entries} />
-     <WebcamCapture />
+     <Camera getImageUrl={this.state.imageUrl} capture={this.capture} webcamRef={this.state.webcamRef} imgSrc={this.state.imgSrc}/>
      <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
      <FaceRecongition url={this.state.input} boxLines={this.state.borderBox} boxDisplay={this.state.display}/>
     </div>
